@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateExpenseTagTable extends Migration
+class CreateBudgetsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,11 @@ class CreateExpenseTagTable extends Migration
      */
     public function up()
     {
-        Schema::create('expense_tag', function (Blueprint $table) {
+        Schema::create('budgets', function (Blueprint $table) {
             $table->id();
-
-            $table->foreignId('expense_id')->constrained()->onDelete('cascade');
-            $table->foreignId('tag_id')->constrained()->onDelete('cascade');
-
+            $table->string('category');
+            $table->float('limit');
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -30,6 +29,6 @@ class CreateExpenseTagTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('expense_tag');
+        Schema::dropIfExists('budgets');
     }
 }

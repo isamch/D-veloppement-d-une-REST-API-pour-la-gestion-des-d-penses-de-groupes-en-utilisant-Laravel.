@@ -9,11 +9,13 @@ class Tag extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name'];
+
+    protected $fillable = [
+        'name',
+    ];
 
     public function expenses()
     {
-        return $this->belongsToMany(Expense::class, 'expense_tag');
+        return $this->belongsToMany(Expense::class);
     }
-
 }
