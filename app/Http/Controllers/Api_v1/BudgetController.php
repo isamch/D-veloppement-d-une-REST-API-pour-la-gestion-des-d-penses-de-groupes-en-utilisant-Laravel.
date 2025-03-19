@@ -1,64 +1,50 @@
 <?php
 
+
 namespace App\Http\Controllers\Api_v1;
 
-use App\Http\Controllers\Controller;
+use App\Models\Budget;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 
 class BudgetController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'category' => 'required|string',
+            'limit' => 'required|numeric',
+        ]);
+
+        $budget = Budget::create([
+            'category' => $request->category,
+            'limit' => $request->limit,
+            'user_id' => $request->user()->id,
+        ]);
+
+        return response()->json($budget, 201);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
+    public function index(Request $request)
     {
-        //
+        $budgets = $request->user()->budgets;
+        return response()->json($budgets);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
+    public function update(Request $request, Budget $budget)
     {
-        //
+        $request->validate([
+            'category' => 'string',
+            'limit' => 'numeric',
+        ]);
+
+        $budget->update($request->all());
+        return response()->json($budget);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
+    public function destroy(Budget $budget)
     {
-        //
+        $budget->delete();
+        return response()->json(['message' => 'Budget deleted']);
     }
 }

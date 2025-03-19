@@ -2,63 +2,34 @@
 
 namespace App\Http\Controllers\Api_v1;
 
-use App\Http\Controllers\Controller;
+use App\Models\Group;
+use App\Models\Settlement;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 
 class SettlementController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
+    public function store(Request $request, Group $group)
     {
-        //
+        $request->validate([
+            'from_user_id' => 'required|exists:users,id',
+            'to_user_id' => 'required|exists:users,id',
+            'amount' => 'required|numeric',
+        ]);
+
+        $settlement = Settlement::create([
+            'from_user_id' => $request->from_user_id,
+            'to_user_id' => $request->to_user_id,
+            'amount' => $request->amount,
+            'group_id' => $group->id,
+        ]);
+
+        return response()->json($settlement, 201);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
+    public function index(Group $group)
     {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
+        $settlements = $group->settlements;
+        return response()->json($settlements);
     }
 }

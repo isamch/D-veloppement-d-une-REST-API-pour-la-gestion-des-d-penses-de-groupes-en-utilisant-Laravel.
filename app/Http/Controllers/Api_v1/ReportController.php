@@ -2,63 +2,34 @@
 
 namespace App\Http\Controllers\Api_v1;
 
-use App\Http\Controllers\Controller;
+use App\Models\Report;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 
 class ReportController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
+    public function summary(Request $request)
     {
-        //
+        $summary = [
+            'total_income' => $request->user()->income,
+            'total_expenses' => $request->user()->expenses->sum('amount'),
+            'balance' => $request->user()->income - $request->user()->expenses->sum('amount'),
+        ];
+
+        return response()->json($summary);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
+    public function custom(Request $request)
     {
-        //
-    }
+        $request->validate([
+            'start_date' => 'required|date',
+            'end_date' => 'required|date',
+        ]);
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
+        $expenses = $request->user()->expenses()
+            ->whereBetween('created_at', [$request->start_date, $request->end_date])
+            ->get();
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
+        return response()->json($expenses);
     }
 }
