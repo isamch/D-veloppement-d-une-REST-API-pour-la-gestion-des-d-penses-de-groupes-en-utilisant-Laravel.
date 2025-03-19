@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api_v1;
 
 use App\Http\Controllers\Controller;
 use App\Models\Expense;
+use App\Models\Group;
 use Illuminate\Http\Request;
 
 class ExpenseController extends Controller
@@ -13,9 +14,10 @@ class ExpenseController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Group $group)
     {
-        return response()->json(Expense::with('tags')->get());
+        $expenses = $group->expenses;
+        return response()->json($expenses);
     }
 
     /**
@@ -24,16 +26,24 @@ class ExpenseController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request, Group $group)
     {
         $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'title' => 'required',
             'amount' => 'required|numeric',
-            'date' => 'required|date'
+            'description' => 'required|string',
+            'payer_id' => 'required|exists:users,id',
+            'split_type' => 'required|in:equal,percentage',
+            'split_details' => 'required_if:split_type,percentage|array',
         ]);
 
-        $expense = Expense::create($request->all());
+        $expense = Expense::create([
+            'amount' => $request->amount,
+            'description' => $request->description,
+            'payer_id' => $request->payer_id,
+            'group_id' => $group->id,
+            'split_type' => $request->split_type,
+            'split_details' => $request->split_details,
+        ]);
 
         return response()->json($expense, 201);
     }
